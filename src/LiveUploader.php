@@ -73,7 +73,6 @@ class LiveUploader
 
     private function get_rackspace_container($config)
     {
-        // print_r($config);
          $client = new Rackspace(Rackspace::US_IDENTITY_ENDPOINT, array(
             'username' => $config['username'],
             'apiKey' => $config['api_key']

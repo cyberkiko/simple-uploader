@@ -1,5 +1,6 @@
 vendor
-uploads
+temp_uploads/*
+!temp_uploads/.gitkeep
 .DS_Store
 vendor
 /example/.env

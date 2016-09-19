@@ -38,7 +38,7 @@ class RackspaceAdapter implements AdapterInterface
     public function write($path, $contents, Config $config)
     {
         // var_dump($contents);
-        $local = __DIR__.'/tmp_uploads/' . $path;
+        $local = __DIR__.'/../../temp_uploads/' . $path;
 
         // upload to local
         move_uploaded_file($contents, $local);
@@ -48,6 +48,37 @@ class RackspaceAdapter implements AdapterInterface
         fclose($handle);
         unlink($local);
         return $object;
+    }
+
+        /**
+     * Update a file.
+     *
+     * @param string $path
+     * @param string $contents
+     * @param Config $config   Config object
+     *
+     * @return array|false false on failure file meta data on success
+     */
+    public function update($path, $contents, Config $config)
+    {
+        $local = __DIR__.'/../../temp_uploads/' . $path;
+
+        move_uploaded_file($contents, $local);
+        $handle = fopen($local, 'r');
+
+        $object = $this->getObject($path);
+        $object->setContent($handle);
+        $object->setEtag(null);
+
+        $response = $object->update();
+
+        fclose($handle);
+        unlink($local);
+
+        if (! $response->getLastModified()) {
+            return false;
+        }
+        return $this->normalizeObject($response);
     }
 
     /**
@@ -123,17 +154,6 @@ class RackspaceAdapter implements AdapterInterface
      * @return array|false false on failure file meta data on success
      */
     public function writeStream($path, $resource, Config $config){}
-
-    /**
-     * Update a file.
-     *
-     * @param string $path
-     * @param string $contents
-     * @param Config $config   Config object
-     *
-     * @return array|false false on failure file meta data on success
-     */
-    public function update($path, $contents, Config $config){}
 
     /**
      * Update a file using a stream.
