@@ -1,9 +1,12 @@
 <?php
-namespace LiveAnswer;
+namespace LiveAnswer\Adapters;
 
+use Guzzle\Http\Exception\ClientErrorResponseException;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
-require_once(__DIR__.'/vendor/Rackspace/cloudfiles/cloudfiles.php');
+use League\Flysystem\Util;
+use OpenCloud\Rackspace;
+use OpenCloud\ObjectStore\Resource\DataObject;
 
 
 class RackspaceAdapter implements AdapterInterface
@@ -24,7 +27,7 @@ class RackspaceAdapter implements AdapterInterface
      */
     public function __construct($container, $prefix = null)
     {
-        // $this->setPathPrefix($prefix);
+        $this->setPathPrefix($prefix);
         $this->container = $container;
     }
 
@@ -35,15 +38,79 @@ class RackspaceAdapter implements AdapterInterface
     public function write($path, $contents, Config $config)
     {
         // var_dump($contents);
-        $local = __DIR__.'/uploads/' . $path;
+        $local = __DIR__.'/tmp_uploads/' . $path;
 
         // upload to local
         move_uploaded_file($contents, $local);
-
+        $handle = fopen($local, 'r');
         // upload file to Rackspace
-        $object = $this->container->create_object($path);
-        $object->load_from_filename($local);
+        $object = $this->container->uploadObject($path, $handle);
+        fclose($handle);
         unlink($local);
+        return $object;
+    }
+
+    /**
+     * Set the path prefix.
+     *
+     * @param string $prefix
+     *
+     * @return self
+     */
+    public function setPathPrefix($prefix)
+    {
+        $is_empty = empty($prefix);
+
+        if ( ! $is_empty) {
+            $prefix = rtrim($prefix, $this->pathSeparator) . $this->pathSeparator;
+        }
+
+    }
+
+    /**
+     * Get the path prefix.
+     *
+     * @return string path prefix
+     */
+    public function getPathPrefix()
+    {
+        return $this->pathPrefix;
+    }
+     /**
+     * Prefix a path.
+     *
+     * @param string $path
+     *
+     * @return string prefixed path
+     */
+    public function applyPathPrefix($path)
+    {
+        $path = ltrim($path, '\\/');
+
+        if (strlen($path) === 0) {
+            return $this->getPathPrefix() ?: '';
+        }
+
+        if ($prefix = $this->getPathPrefix()) {
+            $path = $prefix . $path;
+        }
+
+        return $path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function has($path)
+    {
+        try {
+            $location = $this->applyPathPrefix($path);
+            $exists = $this->container->objectExists($location);
+        } catch (ClientErrorResponseException $e) {
+            return false;
+        }
+
+        return $exists;
     }
 
     /**
@@ -137,14 +204,7 @@ class RackspaceAdapter implements AdapterInterface
      */
     public function setVisibility($path, $visibility){}
 
-    /**
-     * Check whether a file exists.
-     *
-     * @param string $path
-     *
-     * @return array|bool|null
-     */
-    public function has($path){}
+
 
     /**
      * Read a file.
@@ -153,7 +213,13 @@ class RackspaceAdapter implements AdapterInterface
      *
      * @return array|false
      */
-    public function read($path){}
+    public function read($path)
+    {
+        $object = $this->getObject($path);
+        $data = $this->normalizeObject($object);
+        $data['contents'] = (string) $object->getContent();
+        return $data;
+    }
 
     /**
      * Read a file as a stream.
@@ -218,4 +284,58 @@ class RackspaceAdapter implements AdapterInterface
      * @return array|false
      */
     public function getVisibility($path){}
+
+    /**
+     * Get an object.
+     *
+     * @param string $path
+     *
+     * @return DataObject
+     */
+    protected function getObject($path)
+    {
+        $location = $this->applyPathPrefix($path);
+
+        return $this->container->getObject($location);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function normalizeObject(DataObject $object)
+    {
+        $name = $object->getName();
+        // here is the bug
+        $name = $this->removePathPrefix($name);
+        $mimetype = explode('; ', $object->getContentType());
+
+        return [
+            'type'      => ((in_array('application/directory', $mimetype)) ? 'dir' : 'file'),
+            'dirname'   => Util::dirname($name),
+            'path'      => $name,
+            'timestamp' => strtotime($object->getLastModified()),
+            'mimetype'  => reset($mimetype),
+            'size'      => $object->getContentLength(),
+        ];
+    }
+
+    /**
+     * Remove a path prefix.
+     *
+     * @param string $path
+     *
+     * @return string path without the prefix
+     */
+    public function removePathPrefix($path)
+    {
+        $pathPrefix = $this->getPathPrefix();
+
+        if ($pathPrefix === null) {
+            return $path;
+        }
+
+        return substr($path, strlen($pathPrefix));
+    }
+
+
 }

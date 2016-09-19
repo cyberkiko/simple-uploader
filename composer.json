@@ -1,11 +1,20 @@
 {
+    "name": "liveanswer/live-storage",
+    "description": "File system interaction",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alberto Estrada",
+            "email": "alberto@liveanswer.com"
+        }
+    ],
     "require": {
         "league/flysystem": "^1.0",
-        "league/flysystem-aws-s3-v2": "^1.0"
+        "league/flysystem-aws-s3-v2": "^1.0",
+        "guzzlehttp/guzzle": "^6.2",
     },
     "autoload": {
-        "classmap": [
-            "LiveUploader.php", "RackspaceAdapter.php"
-        ]
+        "psr-4": { "LiveAnswer\\": ["src/", "lib/"] }
     }
 }

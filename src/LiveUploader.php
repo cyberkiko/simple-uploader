@@ -5,10 +5,10 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\FilesystemInterface;
-use LiveAnswer\RackspaceAdapter;
+use OpenCloud\Rackspace;
+use LiveAnswer\Adapters\RackspaceAdapter;
 use Aws\S3\S3Client;
 use League\Flysystem\AwsS3v2\AwsS3Adapter;
-require_once(__DIR__.'/vendor/Rackspace/cloudfiles/cloudfiles.php');
 
 
 /**
@@ -56,8 +56,8 @@ class LiveUploader
     {
         $client = S3Client::factory($config['client']);
         $bucket = $config['bucket_name'];
-
-        return $this->create_fly_system(new AwsS3Adapter($client, $bucket), $config);
+        $prefix = $config['optional-prefix'];
+        return $this->create_fly_system(new AwsS3Adapter($client, $bucket, $prefix), $config);
     }
 
     /**
@@ -76,12 +76,14 @@ class LiveUploader
 
     private function get_rackspace_container($config)
     {
-        $auth = new \CF_Authentication($config['username'], $config['api_key']);
-        $auth->authenticate();
-        $connection = new \CF_Connection($auth);
 
-        $container = $connection->get_container($config['container']);
+         $client = new Rackspace(Rackspace::US_IDENTITY_ENDPOINT, array(
+            'username' => $config['username'],
+            'apiKey' => $config['api_key']
+        ));
 
+        $objectStoreService = $client->objectStoreService(null, 'DFW');
+        $container = $objectStoreService->getContainer($config['container']);
         return $container;
     }
 
