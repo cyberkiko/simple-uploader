@@ -19,7 +19,6 @@ class LiveUploader
 
     protected $storage;
 
-
     public function __construct()
     {
         // load config
@@ -30,8 +29,6 @@ class LiveUploader
         $name = $name ?: $this->get_default_driver();
         return $this->{'create_' . $name . '_driver'}($config);
     }
-
-
 
     /**
      * Create an instance of the local driver.
@@ -76,7 +73,7 @@ class LiveUploader
 
     private function get_rackspace_container($config)
     {
-
+        // print_r($config);
          $client = new Rackspace(Rackspace::US_IDENTITY_ENDPOINT, array(
             'username' => $config['username'],
             'apiKey' => $config['api_key']
