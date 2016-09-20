@@ -8,16 +8,15 @@ use League\Flysystem\FilesystemInterface;
 use OpenCloud\Rackspace;
 use LiveAnswer\Adapters\RackspaceAdapter;
 use Aws\S3\S3Client;
-use League\Flysystem\AwsS3v2\AwsS3Adapter;
-
+use LiveAnswer\Adapters\AwsS3Adapter;
 
 /**
 *
 */
-class LiveUploader
+class LiveFilesystem
 {
 
-    protected $storage;
+    protected $livesystem;
 
     public function __construct()
     {
@@ -46,7 +45,8 @@ class LiveUploader
     {
         // Get the container we want to use
         $container = $this->get_rackspace_container($config);
-        return $this->create_fly_system(new RackspaceAdapter($container), $config);
+        $this->livesystem =  $this->create_fly_system(new RackspaceAdapter($container), $config);
+        return $this->livesystem;
     }
 
     public function create_aws_s3_driver(array $config)
@@ -54,8 +54,20 @@ class LiveUploader
         $client = S3Client::factory($config['client']);
         $bucket = $config['bucket_name'];
         $prefix = $config['optional-prefix'];
-        return $this->create_fly_system(new AwsS3Adapter($client, $bucket, $prefix), $config);
+
+        $this->livesystem = $this->create_fly_system(new AwsS3Adapter($client, $bucket, $prefix), $config);
+        return $this->livesystem;
     }
+    // public function get_s3_image_url($path)
+    // {
+    //     $bucket = $this->storage->getAdapter()->getBucket();
+    //     $url = $this->storage
+    //         ->getAdapter()
+    //         ->getClient()
+    //         ->getObjectUrl($bucket, $path);
+
+    //     return $url;
+    // }
 
     /**
      * Create a Flysystem instance with the given adapter.
@@ -78,7 +90,7 @@ class LiveUploader
             'apiKey' => $config['api_key']
         ));
 
-        $objectStoreService = $client->objectStoreService(null, 'DFW');
+        $objectStoreService = $client->objectStoreService(null, 'DFW', 'publicURL');
         $container = $objectStoreService->getContainer($config['container']);
         return $container;
     }
