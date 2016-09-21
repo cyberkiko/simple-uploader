@@ -6,11 +6,11 @@ use LiveAnswer\LiveFilesystem;
 
 $live_uploader = new LiveFilesystem();
 
-$loaded_config = array_merge($config['services']['aws_s3'], ['bucket_name' => 'liveanswer-rs', 'optional-prefix' => 'test-upload']);
-
-// $storage = $live_uploader->storage('rackspace', $loaded_config);
+// $loaded_config = array_merge($config['services']['aws_s3'], ['bucket_name' => 'liveanswer-rs', 'optional-prefix' => 'test-upload']);
+$loaded_config = array_merge($config['services']['rackspace'], ['container' => 'waves_test']);
+$storage = $live_uploader->storage('rackspace', $loaded_config);
 // aws s3
-$storage = $live_uploader->storage('aws_s3', $loaded_config);
+// $storage = $live_uploader->storage('aws_s3', $loaded_config);
 
 
 // $ = $_FILES['upload-custom']['tmp_name'];
@@ -19,8 +19,9 @@ $file_name = $_FILES['upload-custom']['name'];
 // upload
 $contents = fopen($_FILES['upload-custom']['tmp_name'], 'r+');
 try {
-   $data = $storage->writeStream($file_name, $contents);
-   fclose($contents);
+   // $data = $storage->writeStream($file_name, $contents);
+    $storage->writeStream($file_name, $contents);
+    fclose($contents);
 } catch (Exception $e) {
     echo $e->getMessage();
 }

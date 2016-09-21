@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "de808f2bf5c6863fd25cbaf446649c65",
-    "content-hash": "90595bc3806bf6b75282cce0ad49b9f4",
+    "hash": "407749d3bc75c0d1f6ccbd1b2e8e8415",
+    "content-hash": "805356b52e8cd811995e4542d880daff",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -436,6 +436,53 @@
                 "storage"
             ],
             "time": "2016-08-10 08:55:11"
+        },
+        {
+            "name": "league/flysystem-rackspace",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/flysystem-rackspace.git",
+                "reference": "ba877e837f5dce60e78a0555de37eb9bfc7dd6b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-rackspace/zipball/ba877e837f5dce60e78a0555de37eb9bfc7dd6b9",
+                "reference": "ba877e837f5dce60e78a0555de37eb9bfc7dd6b9",
+                "shasum": ""
+            },
+            "require": {
+                "league/flysystem": "~1.0",
+                "php": ">=5.4.0",
+                "rackspace/php-opencloud": "~1.16"
+            },
+            "require-dev": {
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Flysystem\\Rackspace\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Frank de Jonge",
+                    "email": "info@frenky.net"
+                }
+            ],
+            "description": "Flysystem adapter for Rackspace",
+            "time": "2016-03-11 12:13:42"
         },
         {
             "name": "mikemccabe/json-patch-php",

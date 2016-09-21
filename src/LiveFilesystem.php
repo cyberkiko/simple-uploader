@@ -6,7 +6,7 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\FilesystemInterface;
 use OpenCloud\Rackspace;
-use LiveAnswer\Adapters\RackspaceAdapter;
+use League\Flysystem\Rackspace\RackspaceAdapter;
 use Aws\S3\S3Client;
 use LiveAnswer\Adapters\AwsS3Adapter;
 

@@ -10,14 +10,12 @@ foreach ($enviroment_file as $line){
 $config = [
     'services' => [
         'aws_s3' => [
-            'client' => [
-                'version' => 'latest',
-                'credentials' => [
-                    'key' => getenv('AWS_S3_KEY'),
-                    'secret' => getenv('AWS_S3_SECRET'),
-                ],
-                'region' => getenv('AWS_S3_REGION'),
-            ]
+            'version' => 'latest',
+            'credentials' => [
+                'key' => getenv('AWS_S3_KEY'),
+                'secret' => getenv('AWS_S3_SECRET'),
+            ],
+            'region' => getenv('AWS_S3_REGION'),
         ],
         'rackspace' => [
             'username' => getenv('RACKSPACE_USERNAME'),
