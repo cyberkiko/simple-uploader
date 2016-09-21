@@ -17,5 +17,7 @@
     },
     "autoload": {
         "psr-4": { "LiveAnswer\\": ["src/", "lib/"] }
-    }
+    },
+
+    "minimum-stability": "stable"
 }
